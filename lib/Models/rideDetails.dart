@@ -1,0 +1,23 @@
+import 'package:firebase_database/firebase_database.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+class RideDetails {
+  String? pickup_address;
+  String? dropoff_address;
+  LatLng? pickup;
+  LatLng? dropoff;
+  String? ride_request_id;
+  String? payment_method;
+  String? rider_name;
+  String? rider_phone;
+
+  RideDetails(
+      {this.ride_request_id,
+      this.pickup_address,
+      this.dropoff_address,
+      this.pickup,
+      this.dropoff,
+      this.payment_method,
+      this.rider_name,
+      this.rider_phone});
+}

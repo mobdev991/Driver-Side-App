@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1088586178341",
+    "firebase_url": "https://rioree-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "rioree",
+    "storage_bucket": "rioree.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1088586178341:android:470b113fc4e0552e6604cc",
+        "android_client_info": {
+          "package_name": "com.rio.driver_side_complete"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1088586178341-m6f6mbobai82bcv2oajhhrs9jucptrkn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rio.driver_side_complete",
+            "certificate_hash": "243ee650ad6f31c09d40262fc81cfb1de0ff1e96"
+          }
+        },
+        {
+          "client_id": "1088586178341-i5q0lkr461jr2f220aillsf3akckr2i8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDruOs4J-RUvqbjrkIAXgAQavqqcfiUPzg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1088586178341-i5q0lkr461jr2f220aillsf3akckr2i8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

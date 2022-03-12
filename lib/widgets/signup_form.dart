@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:riorider/config.dart';
 import 'package:riorider/screens/car_info_screen.dart';
@@ -8,6 +9,7 @@ import 'package:riorider/screens/car_info_screen.dart';
 import '../main.dart';
 import '../screens/Home_page.dart';
 
+import '../setting_screens/policy_screen.dart';
 import '../theme.dart';
 import '../widgets/primary_button.dart';
 import '../screens/otp_screen.dart';
@@ -23,6 +25,7 @@ class _SignUpFormState extends State<SignUpForm> {
   bool _isObscure = true;
 
   bool errorSignUp = false;
+  bool checkedValue = false;
 
   TextEditingController _passwordTextController = TextEditingController();
   TextEditingController _emailTextController = TextEditingController();
@@ -33,37 +36,79 @@ class _SignUpFormState extends State<SignUpForm> {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        buildInputForm('Name', false, _nameTextController),
-        // buildInputForm('Last Name', false),
-        buildInputForm('Email', false, _emailTextController),
-        buildInputForm('Phone', false, _phoneTextController),
-        buildInputForm('Password', true, _passwordTextController),
-
-        Padding(
-          padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
-          child: CheckBox('Agree to terms and conditions.'),
-        ),
-        // buildInputForm('Confirm Password', true),
         Text(
           errorSignUp == false ? "" : 'Invalid Formate : Too Short',
           style: TextStyle(
             color: Colors.red,
-            fontSize: 15,
+            fontSize: 12,
             fontWeight: FontWeight.bold,
           ),
         ),
+        TextFormField(
+          controller: _nameTextController,
+          keyboardType: TextInputType.text,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp('[a-zA-Z]')),
+          ],
+          decoration: InputDecoration(
+            hintText: 'Name',
+            hintStyle: TextStyle(color: kTextFieldColor),
+            focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: kPrimaryColor)),
 
-        SizedBox(
-          height: 10,
+          ),
         ),
+        // buildInputForm('Last Name', false),
+        buildInputForm('Email', false, _emailTextController),
+        // buildInputForm('Phone   e.g  0303XXXXXXX', false, _phoneTextController),
+
+        TextFormField(
+          controller: _phoneTextController,
+          keyboardType: TextInputType.number,
+          inputFormatters: <TextInputFormatter>[
+            FilteringTextInputFormatter.digitsOnly
+          ],
+          decoration: InputDecoration(
+            hintText: 'Phone   e.g  0303XXXXXXX',
+            hintStyle: TextStyle(color: kTextFieldColor),
+            focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: kPrimaryColor)),
+
+          ),
+        ),
+
+        buildInputForm('Password', true, _passwordTextController),
+
+        Padding(
+          padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+          child: CheckboxListTile(
+            title: GestureDetector(
+                onTap: (){
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AppPrivacy()));
+
+                },
+                child: Text('Agree to terms and conditions.',style: TextStyle(color: Colors.indigo,fontWeight: FontWeight.bold))),
+            value: checkedValue,
+            onChanged: (newValue) {
+              setState(() {
+                checkedValue = newValue!;
+                print(newValue);
+              });
+            },
+            controlAffinity: ListTileControlAffinity.leading,  //  <-- leading Checkbox
+          )
+
+        ),
+        // buildInputForm('Confirm Password', true),
+
+
+
         PrimaryButton(
             buttonText: 'Create Account',
             onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => CarInfoScreen()));
-              // Navigator.push(context,
-              //     MaterialPageRoute(builder: (context) => CarInfoScreen()));
-
               if (_passwordTextController.text.length < 6) {
                 displayToastMessage("Password Too Short", context);
               } else if (_nameTextController.text.length < 3) {
@@ -73,14 +118,15 @@ class _SignUpFormState extends State<SignUpForm> {
               } else if (!_emailTextController.text.contains("@") &&
                   !_emailTextController.text.contains(".")) {
                 displayToastMessage("Invalid Email", context);
-              } else if (_phoneTextController.text.length == null) {
-                displayToastMessage("Enter Your Phone Nubmber", context);
+              } else if (_phoneTextController.text.length == null || _phoneTextController.text.length != 11 ) {
+                displayToastMessage("Enter Valid Phone Nubmber", context);
               } else {
-                registerNewUser(context);
+
               }
-              //verifyPhoneNumber();
-              //}
-            }),
+              }
+
+
+            ),
       ],
     );
   }
@@ -134,7 +180,7 @@ class _SignUpFormState extends State<SignUpForm> {
     {
       // save his info
       //
-      driverRef.child(firebaseUser!.uid);
+      driverRef.child(firebaseUser.uid);
 
       Map userDataMap = {
         "name": _nameTextController.text.trim(),

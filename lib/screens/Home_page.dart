@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'dart:math';
 
-import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -13,38 +13,56 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:location/location.dart' as loc;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:riorider/Assistance/assistanceMethods.dart';
 import 'package:riorider/Models/drivers.dart';
-import 'package:riorider/Notifications/notification_dialog.dart';
+import 'package:riorider/Notifications/awesome_notifications.dart';
+import 'package:riorider/Notifications/notifications.dart';
 import 'package:riorider/Notifications/pushNotificationService.dart';
+import 'package:riorider/chat_packages/chat_home.dart';
 import 'package:riorider/config.dart';
 import 'package:riorider/main.dart';
 import 'package:riorider/providers/appData.dart';
-import 'package:riorider/screens/accept_ride_page.dart';
+import 'package:riorider/screens/Home_page_two.dart';
+import 'package:riorider/screens/earning_page.dart';
+import 'package:riorider/screens/job_history.dart';
 import 'package:riorider/screens/login.dart';
+import 'package:riorider/screens/rider_notification_page.dart';
+import 'package:riorider/setting_screens/aboutUs_screen.dart';
+import 'package:riorider/setting_screens/main_setting_screen.dart';
+import 'package:riorider/widgets/signup_form.dart';
 import '../Models/direactionDetails.dart';
+import '../theme.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  HomePage({Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
 }
-
-class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
+DatabaseReference rideRequestRef = FirebaseDatabase.instance
+    .ref()
+    .child("drivers")
+    .child(currentFirebaseUser!.uid)
+    .child("newRide");
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin,WidgetsBindingObserver{
   GlobalKey<ScaffoldState> _scaffoldKEY = GlobalKey<ScaffoldState>();
   Completer<GoogleMapController> _controllerGoogleMap = Completer();
 
   PushNotificationService pushee = PushNotificationService();
 
+  bool appPermissioncheck = true;
+
   DirectionDetails? tripDirectionDetails;
 
   var geoLocator = Geolocator();
 
-  String driverStatusText = "Offline";
+  String driverStatusText = (languageEnglish == false)?' Offline ' : ' آف لائن ';
   Color driverStatusColor = Colors.black12;
   bool isDriverAvailable = false;
+  Color containerColor = Colors.white60;
+  String driverName = 'Best Driver';
 
   List<LatLng> pLineCoordinates = [];
   Set<Polyline> polylineSet = {};
@@ -55,20 +73,140 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   double bottomPaddingMap = 100;
 
   double maindialogContainerHeight = 0;
+  double warningWidgetHeight = 60;
+  double warningIconSize = 35;
 
   DatabaseReference? rideRequestRef;
   String notificationMsg = 'Waiting for Notifications';
 
+  double goContainerHeight = 150;
+  double notificationContainerHeight = 0;
+  bool showNotification = false;
+
   @override
   void initState() {
     print("initstate-------------------------------in");
+    print(languageEnglish);
     super.initState();
+    WidgetsBinding.instance?.addObserver(this);
     getCurrentDriverInfo();
-    AssistantMethods.getCurrentOnLineUserInfo();
-    print("initstate-------------------------------out");
+    AssistantMethods.getCurrentOnLineUserInfo(context);
+    print('print ------------------------------------- ride status');
+    print(onlineOrOffline);
+    if( onlineOrOffline == "online"){
+      driverStatusColor = Colors.green;
+      driverStatusText = (languageEnglish == false)?' Online ' : ' آن لائن ';
+      isDriverAvailable = true;
+      containerColor = kOffWhiteOfBack;
+      print('make driver online exicutedd === ');
+      makeDriverOnlineNow();
+
+    }
+
+
+
+    AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+      if(!isAllowed){
+        print('Awesome Notification Permisson is not allowed');
+
+        showDialog(
+            context: context, builder: (context) => AlertDialog(title: Text('Allow Notifications'),
+        content: Text('Our App Would Like To Send You Notifications'),
+            actions: [TextButton(onPressed: (){Navigator.pop(context);}, child: Text('Deny')),
+            TextButton(onPressed: ()=> AwesomeNotifications().requestPermissionToSendNotifications().then((_)=>Navigator.pop(context)), child: Text('Allow'))
+            ]),);
+      }else{
+        print('Awesome Notification Permisson is allowed');
+      }
+    }
+    );
+
+
   }
 
-  // void locatePosition() async {
+
+  @override
+  void dispose() {
+    print('super dispose Appo');
+
+    makeDriverOfflineNow();
+    super.dispose();
+    print(' disposed App');
+    WidgetsBinding.instance?.removeObserver(this);
+
+  }
+
+
+
+  @override
+  void deactivate() {
+    print('deactivare Appo');
+
+    makeDriverOfflineNow();
+    super.deactivate();
+    print('super deactivare Appo');
+  }
+
+  void mapInitialized
+        (GoogleMapController controller) {
+    print('google map controller called');
+      _controllerGoogleMap.complete(controller);
+      newGoogleMapControler = controller;
+      checkPermission();
+      getCurrentLocation();
+    }
+
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async{
+    super.didChangeAppLifecycleState(state);
+print(state);
+    if(state == AppLifecycleState.resumed){
+      print(' app is resumed---------');
+
+      var status = await Permission.location.status;
+      if(status.isGranted){
+        print('in warning button ------- location is granted');
+
+          hideWarningWidget();
+          newGoogleMapControler?.setMapStyle("[]");
+       if(appPermissioncheck == false){
+         appPermissioncheck =true;
+         print('apppermissionchec = ' + appPermissioncheck.toString());
+         Navigator.push(
+             context,
+             MaterialPageRoute(
+                 builder: (context) => HomePage()));
+       }else{
+         print('else apppermissionchec = ' + appPermissioncheck.toString());
+       }
+
+      }else {
+        print('in warning button ------- location is NOT granted');
+
+        showWarningWidget();
+
+
+      }
+
+    }else if(state == AppLifecycleState.inactive){
+      print(' app is inactive---------');
+    }else if(state == AppLifecycleState.detached){
+      makeDriverOfflineNow();
+      print(' app is detached---------');
+    }else if(state == AppLifecycleState.paused){
+      print(' app is pasued---------');
+      // setState(() {
+      //   driverStatusColor = Colors.black12;
+      //   driverStatusText = ' Offline ';
+      //   isDriverAvailable = false;
+      //   containerColor = Colors.white60;
+      // });
+      // makeDriverOfflineNow();
+    }else{
+      print('unknown App State');
+    }
+  } // void locatePosition() async {
   //   Position position =
   //       Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
   // }
@@ -99,14 +237,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         CircleAvatar(
                           radius: 40,
                           backgroundImage: AssetImage(
-                            "images/third_pic.jpg",
+                            "images/profile.png",
                           ),
                         ),
                         SizedBox(
                           height: 12,
                         ),
                         Text(
-                          "Zayd",
+                          driverName,
                           style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -118,30 +256,21 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ))),
               Divider(thickness: 1, color: Colors.white),
               ListTile(
-                  leading: Icon(Icons.message, color: Colors.white),
-                  title: Text(
-                    "Messages",
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
-                  ),
-                  onTap: () {
-                    // Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //         builder: (context) =>   MyWalet()),
-
-                    //   );
-                  },
-                  trailing: CircleAvatar(
-                    backgroundColor: Colors.white,
-                    radius: 15,
-                    child: Text(
-                      '1',
-                      style: TextStyle(color: Colors.indigo),
-                    ),
-                  )),
+                leading: Icon(Icons.message, color: Colors.white),
+                title: Text(
+                  "Messages",
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ChatHomePage()),
+                  );
+                },
+              ),
               Divider(thickness: 1, color: Colors.white),
               ListTile(
                 leading:
@@ -154,10 +283,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       color: Colors.white),
                 ),
                 onTap: () {
-                  // Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //         builder: (context) => InviteFriend()));
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => EarningPage()));
                 },
               ),
               ListTile(
@@ -170,12 +297,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       color: Colors.white),
                 ),
                 onTap: () {
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //       builder: (context) =>   SuportPage()),
-
-                  // );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => JobNotifications()),
+                  );
                 },
               ),
               ListTile(
@@ -187,7 +312,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       fontWeight: FontWeight.bold,
                       color: Colors.white),
                 ),
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => Setting()));
+                },
               ),
               ListTile(
                 leading: Icon(Icons.support, color: Colors.white),
@@ -198,7 +326,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       fontWeight: FontWeight.bold,
                       color: Colors.white),
                 ),
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => OnlineSupport()));
+                },
               ),
               SizedBox(
                 height: 10,
@@ -232,16 +363,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   mapType: MapType.normal,
                   myLocationButtonEnabled: false,
                   initialCameraPosition: _kGooglePlex,
-                  zoomGesturesEnabled: true,
-                  zoomControlsEnabled: true,
                   polylines: polylineSet,
                   markers: markersSet,
                   circles: circlesSet,
-                  onMapCreated: (GoogleMapController controller) {
-                    _controllerGoogleMap.complete(controller);
-                    newGoogleMapControler = controller;
-                    getCurrentLocation();
-                  }),
+                  onMapCreated:mapInitialized
+
+                  ),
             ),
             Positioned(
                 top: 30,
@@ -254,6 +381,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         color: Colors.indigo,
                         iconSize: 35,
                         onPressed: () {
+                          driverName = userCurrentInfo!.name!;
                           _scaffoldKEY.currentState!.openDrawer();
                         },
                       ),
@@ -265,12 +393,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     height: 60,
                     child: Card(
                       child: IconButton(
-                        icon: Icon(Icons.notification_add),
+                        icon: Icon(Icons.notifications_on),
                         color: Colors.indigo,
                         iconSize: 35,
                         onPressed: () {
-                          // pushee.retrieveRideRequestInfo(
-                          //     '-MtHF3I71uB47gV0IuGN', context);
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Notifications()));
                         },
                       ),
                     ))),
@@ -284,127 +414,121 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         icon: Icon(Icons.my_location),
                         color: Colors.indigo,
                         iconSize: 35,
-                        onPressed: () {
-                          getCurrentLocation();
+                        onPressed: () async{
+
+                          var status = await Permission.location.status;
+                          if(status.isGranted){
+                            print('in warning button ------- location is granted');
+                            getCurrentLocation();
+
+                          }else {
+
+                            showRequestPermissionDialog();
+                          }
+
                         },
                       ),
                     ))),
             Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
+                top: 280,
+                right: 20,
                 child: Container(
-                  height: 225,
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(34),
-                          topRight: Radius.circular(34)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black,
-                          blurRadius: 16,
-                          spreadRadius: 0.5,
-                          offset: Offset(0.7, 0.7),
-                        ),
-                      ]),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 18, horizontal: 24),
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: 0,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 70, right: 70),
-                          child: Divider(
-                            color: Colors.black45,
-                            thickness: 2,
-                          ),
-                        ),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                                child: Container(
-                              color: Colors.white,
-                              child: GestureDetector(
-                                onTap: () {
-                                  print("go clicked");
+                    height: warningWidgetHeight,
+                    child: Card(
+                      child: IconButton(
+                        icon: Icon(Icons.warning),
+                        color: Colors.red.shade700,
+                        iconSize: warningIconSize,
+                        onPressed: () async{
+                          var status = await Permission.location.status;
+                          if(status.isGranted){
+                            print('in warning button ------- location is granted');
+                            hideWarningWidget();
+                          }else {
+                            print('in warning button ------- location is NOT granted');
+                            showRequestPermissionDialog();
+                          }
+                        },
+                      ),
+                    ))),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: goContainerHeight,
+                decoration: BoxDecoration(
+                    color: containerColor,
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(5),
+                        topRight: Radius.circular(5)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black,
+                        blurRadius: 16,
+                        spreadRadius: 0.5,
+                        offset: Offset(0.7, 0.7),
+                      ),
+                    ]),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 100, vertical: 50),
+                  child: MaterialButton(
+                    color: driverStatusColor,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                    onPressed: () async{
+                      var status = await Permission.location.status;
+                      if(status.isGranted){
+                        print("go clicked");
+                        if (isDriverAvailable != true) {
+                          print(languageEnglish);
+                          makeDriverOnlineNow();
+                          getLocationLiveUpdates();
 
-                                  if (isDriverAvailable != true) {
-                                    makeDriverOnlineNow();
-                                    getLocationLiveUpdates();
+                          setState(() {
+                            driverStatusColor = Colors.green;
+                            driverStatusText = (languageEnglish == false)?' Online ' : ' آن لائن ';
+                            isDriverAvailable = true;
+                            containerColor = kOffWhiteOfBack;
+                          });
+                        } else {
+                          setState(() {
+                            driverStatusColor = Colors.black12;
+                            driverStatusText = (languageEnglish == false)?' Offline ' : ' آف لائن ';
+                            isDriverAvailable = false;
+                            containerColor = Colors.white60;
+                          });
 
-                                    setState(() {
-                                      driverStatusColor = Colors.green;
-                                      driverStatusText = "Online";
-                                      isDriverAvailable = true;
-                                    });
-
-                                    print(
-                                        'your are online-----------------------------------------');
-                                  } else {
-                                    setState(() {
-                                      driverStatusColor = Colors.black38;
-                                      driverStatusText = "Offline Now";
-                                      isDriverAvailable = false;
-                                    });
-                                    makeDriverOfflineNow();
-                                  }
-                                },
-                                child: CircleAvatar(
-                                  foregroundColor: driverStatusColor,
-                                  radius: 70,
-                                  child: Column(
-                                    children: [
-                                      SizedBox(
-                                        height: 20,
-                                      ),
-                                      IconButton(
-                                        onPressed: () {},
-                                        icon: Icon(
-                                          Icons.arrow_upward_sharp,
-                                          size: 40,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      Text(
-                                        driverStatusText,
-                                        style: TextStyle(color: Colors.white),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ))
-                          ],
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                      ],
+                          makeDriverOfflineNow();
+                        }
+                        // Navigator.push(context,
+                        //     MaterialPageRoute(builder: (context) => FarePage()));
+                      }else{
+                        print('dnt have permission --------------------------');
+                        displayToastMessage('Need Location Permission', context);
+                      }
+                    },
+                    child: Text(
+                      driverStatusText,
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
-                )),
+                ),
+              ),
+            ),
+            // RiderNotification(containerHeight: notificationContainerHeight)
           ],
         ),
       ),
     );
   }
 
-  void _selectItem(String name) {
-    Navigator.pop(context);
-    setState(() {});
-  }
 
   void getCurrentLocation() async {
     print('GetCurrent Lcoation executed');
 
     Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.low);
+        desiredAccuracy: LocationAccuracy.high);
     // currentPosition = position;
 
     print('GetCurrent  executed');
@@ -414,7 +538,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         new CameraPosition(target: currentPosition, zoom: 14);
 
     newGoogleMapControler!
-        .animateCamera(CameraUpdate.newCameraPosition(cameraPositionuser!));
+        .animateCamera(CameraUpdate.newCameraPosition(cameraPositionuser));
     String address =
         await AssistantMethods().searchCoordinateAddress(position, context);
 
@@ -559,6 +683,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         currentPosition!.longitude);
     rideRequestRef!.set('searching');
     rideRequestRef!.onValue.listen((event) {});
+
+    pushee.showNotificationDialog(context);
   }
 
   void getLocationLiveUpdates() {
@@ -578,9 +704,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   void makeDriverOfflineNow() {
     Geofire.removeLocation(currentFirebaseUser!.uid);
+    print(rideRequestRef!.key);
     rideRequestRef!.onDisconnect();
-    rideRequestRef!.remove();
+    rideRequestRef!.set('offline');
     print('your are offline-----------------------------------------');
+    print(rideRequestRef!.key);
   }
 
   void getCurrentDriverInfo() async {
@@ -602,7 +730,103 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     PushNotificationService pushNotificationService = PushNotificationService();
 
-    pushNotificationService.initialize();
+    pushNotificationService.initialize(context);
     pushNotificationService.getToken();
+
+    assignDriverInfo();
+
+    AssistantMethods.retriveHistoryInfo(context);
+  }
+
+  void assignDriverInfo() {
+    driverRef
+        .child(currentFirebaseUser!.uid)
+        .child('name')
+        .once()
+        .then((DatabaseEvent event) {
+      print("datasnap value in makedriver online");
+      DataSnapshot snap = event.snapshot;
+      print(snap.value);
+      if (snap.exists) {
+        setState(() {
+          driverName = snap.value.toString();
+        });
+
+        print('driver Name :: ${driverName}');
+      }
+    });
+  }
+
+  void checkPermission() async{
+    var status = await Permission.location.status;
+
+    if(status.isDenied){
+print('location permission is denied..............................');
+showWarningWidget();
+    }else{
+
+      print('location permission is NOT denied..............................');
+    }
+
+    if(status.isRestricted){
+print('location permission is Restricted..............................');
+showWarningWidget();
+    }else{
+
+      print('location permission is NOT Restricted..............................');
+    }
+
+    if(status.isPermanentlyDenied){
+print('location permission is PermanentlyDenied..............................');
+showWarningWidget();
+    }else{
+
+      print('location permission is NOT PermanentalyDenied..............................');
+    } if(status.isGranted){
+print('location permission is Granted..............................');
+hideWarningWidget();
+    }else{
+
+     showWarningWidget();
+showRequestPermissionDialog();
+
+    }
+
+
+  }
+
+  void showWarningWidget(){
+warningWidgetHeight = 60;
+warningIconSize = 35;
+  }
+  void hideWarningWidget(){
+warningWidgetHeight = 0;
+warningIconSize = 0;
+  }
+
+  void showRequestPermissionDialog(){
+    showDialog(
+        context: context,
+        builder: (BuildContext context) => CupertinoAlertDialog(
+          title: Text('Location Permission',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,color: Colors.indigo)),
+          content: Text(
+              'Rio Drive collects location Data to enable "Ride Request" and "Location Tracking" Features, even when the app is closed or not in use', style: TextStyle(fontSize: 15,),),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              child: Text('Deny',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,color: Colors.indigo)),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            CupertinoDialogAction(
+              child: Text('Allow',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,color: Colors.indigo)),
+              onPressed: () {
+                appPermissioncheck = false;
+                Permission.location.request();
+                Navigator.pop(context);
+
+
+              },
+            ),
+          ],
+        ));
   }
 }

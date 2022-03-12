@@ -24,7 +24,7 @@ class SplashScreenState extends State<SplashScreen>
   }
 
   void navigationPage() {
-    Navigator.of(context).pushReplacementNamed( Onbording_screen);
+    Navigator.of(context).pushReplacementNamed(onbordingscreen);
   }
 
   @override
@@ -33,7 +33,7 @@ class SplashScreenState extends State<SplashScreen>
     animationController = new AnimationController(
         vsync: this, duration: new Duration(seconds: 2));
     animation =
-    new CurvedAnimation(parent: animationController, curve: Curves.easeOut);
+        new CurvedAnimation(parent: animationController, curve: Curves.easeOut);
 
     animation.addListener(() => this.setState(() {}));
     animationController.forward();
@@ -57,9 +57,8 @@ class SplashScreenState extends State<SplashScreen>
             children: <Widget>[
               // Text("Welcom" , style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
               // Padding(padding: EdgeInsets.only(bottom: 30.0),child:new Image.asset('assets/images/logos.jpeg',height: 100.0, width: 100, fit: BoxFit.scaleDown,))
-
-
-            ],),
+            ],
+          ),
           SizedBox(
             height: 30,
           ),

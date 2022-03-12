@@ -16,6 +16,7 @@ class Onbording extends StatelessWidget {
         primarySwatch: Colors.indigo,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
+
       home:
           FirebaseAuth.instance.currentUser == null ? MyHomePage() : HomePage(),
     );

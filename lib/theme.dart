@@ -7,13 +7,14 @@ const kWhiteColor = Color(0xFFFFFFFF);
 const kZambeziColor = Color(0xFF5B5B5B);
 const kBlackColor = Color(0xFF272726);
 const kTextFieldColor = Color(0xFF979797);
+const kOffWhiteOfBack = Color(0xFFE8E8E8);
 
 const kDefaultPadding = EdgeInsets.symmetric(horizontal: 30);
 
 TextStyle titleText =
     TextStyle(color: Colors.indigo, fontSize: 32, fontWeight: FontWeight.w700);
-TextStyle subTitle = TextStyle(
-    color: Colors.indigo, fontSize: 13, fontWeight: FontWeight.w500);
+TextStyle subTitle =
+    TextStyle(color: Colors.indigo, fontSize: 13, fontWeight: FontWeight.w500);
 TextStyle textButton = TextStyle(
   color: Colors.indigo,
   fontSize: 18,

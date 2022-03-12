@@ -84,19 +84,6 @@ class _PickUpRiderState extends State<PickUpRider> {
                         ),
                       ],
                     )))),
-            // Positioned(
-            //     top: 30,
-            //     right: 20,
-            //     child: Container(
-            //         height: 60,
-            //         child: Card(
-            //           child: IconButton(
-            //             icon: Icon(Icons.notification_add),
-            //             color: Colors.indigo,
-            //             iconSize: 35,
-            //             onPressed: () {},
-            //           ),
-            //         ))),
             Positioned(
                 bottom: 0,
                 left: 0,

@@ -34,21 +34,23 @@ dependencies:
   firebase_analytics: ^9.0.4
   cloud_firestore: ^3.1.5
   permission_handler: ^8.3.0
+  intl: ^0.17.0
+  awesome_notifications: ^0.6.21
 
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   carousel_slider: ^4.0.0
-  flutter_svg: ^1.0.0
+  flutter_svg: ^1.0.3
   introduction_screen: ^2.1.0
   provider: ^6.0.1
   google_fonts: ^2.0.0
   google_maps_flutter: ^2.1.1
-  geolocator: ^8.0.1
+  geolocator: ^8.0.5
   location: ^4.3.0
   http: ^0.13.4
-  geocoding: ^2.0.1
+  geocoding: ^2.0.2
   fluttertoast: ^8.0.8
   flutter_polyline_points: ^1.0.0
   firebase_database: ^9.0.4
@@ -58,6 +60,12 @@ dependencies:
   flutter_local_notifications: ^9.1.5
   assets_audio_player: ^3.0.3+9
   maps_toolkit: ^2.0.0
+  font_awesome_flutter: ^9.2.0
+  multiavatar: ^0.1.5
+  timeago: ^3.1.0
+  url_launcher: ^6.0.18
+  rename: ^2.0.1
+
 
 
 
@@ -91,6 +99,10 @@ flutter:
     - images/second_pic.jpeg
     - images/third_pic.jpg
     - images/tuktukOnMap.png
+    - images/support.png
+    - images/comission.png
+    - images/profile.png
+    - images/google.png
     - assets/images/mastercard-2.png
     - lib/sounds/alert.mp3
 

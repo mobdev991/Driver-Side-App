@@ -60,60 +60,7 @@ class CarInfoScreen extends StatelessWidget {
               child: CarInfoForm(),
             ),
             SizedBox(
-              height: 20,
-            ),
-
-            //GestureDetector(
-            //     onTap: () {
-            //       Navigator.push(
-            //           context,
-            //           MaterialPageRoute(
-            //             builder: (context) => Otp(),
-            //           ));
-            //     },
-            //     child: PrimaryButton(
-            //       buttonText: 'Create Account',
-            //       isLogin: false,
-            //       onTap: () {},
-            //     ),
-            // Padding(
-            //   padding: kDefaultPadding,
-            //   child: PrimaryButton(buttonText: 'Create Account'),
-            // ),
-
-            Padding(
-              padding: kDefaultPadding,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Already a member?',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => SignUpScreen()));
-                    },
-                    child: Text(
-                      'Log In',
-                      style: textButton.copyWith(
-                        decoration: TextDecoration.underline,
-                        decorationThickness: 1,
-                      ),
-                    ),
-                  )
-                ],
-              ),
+              height: 10,
             ),
           ],
         ),

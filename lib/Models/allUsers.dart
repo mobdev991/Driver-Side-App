@@ -16,9 +16,9 @@ class Users {
     var data = dataSnapshot.value as Map?;
 
     if (data != null) {
-      email = data?["email"];
-      name = data?["name"];
-      phone = data?["phone"];
+      email = data["email"];
+      name = data["name"];
+      phone = data["phone"];
     }
   }
 }

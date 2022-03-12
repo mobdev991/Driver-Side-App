@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import '../screens/login.dart';
 import '../widgets/signup_form.dart';
@@ -58,7 +59,7 @@ class SignUpScreen extends StatelessWidget {
               child: SignUpForm(),
             ),
             SizedBox(
-              height: 20,
+              height: 10,
             ),
 
             //GestureDetector(
@@ -82,14 +83,14 @@ class SignUpScreen extends StatelessWidget {
             Padding(
               padding: kDefaultPadding,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
                     'Already a member?',
                     style: TextStyle(
                       color: Colors.grey,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 12,
                     ),
                   ),
                   SizedBox(
@@ -107,6 +108,7 @@ class SignUpScreen extends StatelessWidget {
                       style: textButton.copyWith(
                         decoration: TextDecoration.underline,
                         decorationThickness: 1,
+                        fontSize: 14
                       ),
                     ),
                   )

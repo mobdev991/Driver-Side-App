@@ -65,16 +65,16 @@ class _AcceptRideState extends State<AcceptRide> {
                 left: 0,
                 right: 0,
                 child: Container(
-                  height: 220,
+                  height: 300,
                   decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(34),
-                          topRight: Radius.circular(34)),
+                          topLeft: Radius.circular(15),
+                          topRight: Radius.circular(15)),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black,
-                          blurRadius: 16,
+                          blurRadius: 10,
                           //spreadRadius: 0.5,
                           //  offset: Offset(0.7, 0.7),
                         ),
@@ -82,24 +82,33 @@ class _AcceptRideState extends State<AcceptRide> {
                   child: Column(
                     children: [
                       SizedBox(
-                        height: 5,
+                        height: 1,
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 120, right: 120),
                         child: Divider(
-                          thickness: 2,
-                          color: Colors.grey,
+                          thickness: 4,
+                          color: Colors.black54,
                         ),
                       ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text('New Rider Found',
+                          style: TextStyle(
+                              color: Colors.indigo,
+                              fontWeight: FontWeight.bold)),
+
+                      SizedBox(
+                        height: 10,
+                      ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 54, right: 54),
-                        child: Column(
+                        padding: EdgeInsets.only(left: 50, right: 50),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
                                   'Total Distance',
@@ -107,40 +116,149 @@ class _AcceptRideState extends State<AcceptRide> {
                                       color: Colors.indigo,
                                       fontWeight: FontWeight.bold),
                                 ),
+                                SizedBox(
+                                  height: 2,
+                                ),
                                 Text(
-                                  'Est to Destination',
+                                  '60 KM',
+                                  style: TextStyle(
+                                      color: Colors.indigo,
+                                      fontWeight: FontWeight.bold),
+                                )
+                              ],
+                            ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Est To PickUp',
                                   style: TextStyle(
                                       color: Colors.indigo,
                                       fontWeight: FontWeight.bold),
                                 ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  '25 Km',
-                                  style: TextStyle(
-                                    color: Colors.indigo,
-                                  ),
-                                ),
                                 SizedBox(
-                                  width: 100,
+                                  height: 2,
                                 ),
                                 Text(
-                                  '11:10pm',
+                                  '10 M',
                                   style: TextStyle(
-                                    color: Colors.indigo,
-                                  ),
-                                ),
+                                      color: Colors.indigo,
+                                      fontWeight: FontWeight.bold),
+                                )
                               ],
-                            )
+                            ),
                           ],
                         ),
                       ),
+                      SizedBox(
+                        height: 10,
+                      ),
+
+                      Divider(
+                        thickness: 2,
+                        color: Colors.grey,
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 50, right: 50),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Rider\'s Current Location',
+                                  style: TextStyle(
+                                      color: Colors.indigo,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  'Islamabad',
+                                  style: TextStyle(
+                                      color: Colors.indigo,
+                                      fontWeight: FontWeight.bold),
+                                )
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Rider\'s Destination ',
+                                  style: TextStyle(
+                                      color: Colors.indigo,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  'Lahore',
+                                  style: TextStyle(
+                                      color: Colors.indigo,
+                                      fontWeight: FontWeight.bold),
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      // Padding(
+                      //   padding: const EdgeInsets.only(left: 54, right: 54),
+                      //   child: Column(
+                      //     children: [
+                      //       SizedBox(
+                      //         height: 10,
+                      //       ),
+                      //       Row(
+                      //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //         children: [
+                      //           Text(
+                      //             'Total Distance',
+                      //             style: TextStyle(
+                      //                 color: Colors.indigo,
+                      //                 fontWeight: FontWeight.bold),
+                      //           ),
+                      //           Text(
+                      //             'Est to Destination',
+                      //             style: TextStyle(
+                      //                 color: Colors.indigo,
+                      //                 fontWeight: FontWeight.bold),
+                      //           ),
+                      //         ],
+                      //       ),
+                      //       SizedBox(
+                      //         height: 10,
+                      //       ),
+                      //       Row(
+                      //         mainAxisAlignment: MainAxisAlignment.center,
+                      //         children: [
+                      //           Text(
+                      //             '25 Km',
+                      //             style: TextStyle(
+                      //               color: Colors.indigo,
+                      //             ),
+                      //           ),
+                      //           SizedBox(
+                      //             width: 100,
+                      //           ),
+                      //           Text(
+                      //             '11:10pm',
+                      //             style: TextStyle(
+                      //               color: Colors.indigo,
+                      //             ),
+                      //           ),
+                      //         ],
+                      //       )
+                      //     ],
+                      //   ),
+                      // ),
                       Divider(
                         thickness: 2,
                         color: Colors.grey,
@@ -148,50 +266,28 @@ class _AcceptRideState extends State<AcceptRide> {
                       Padding(
                         padding: const EdgeInsets.only(left: 54, right: 54),
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             SizedBox(
-                              height: 10,
+                              height: 5,
                             ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  'Earning Details',
+                                  'Estimated Fare',
                                   style: TextStyle(
                                       color: Colors.indigo,
                                       fontWeight: FontWeight.bold),
                                 ),
                                 Text(
-                                  'CASH',
+                                  'RS 500',
                                   style: TextStyle(
                                       color: Colors.indigo,
                                       fontWeight: FontWeight.bold),
-                                ),
+                                )
                               ],
                             ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  '',
-                                  style: TextStyle(
-                                    color: Colors.indigo,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 142,
-                                ),
-                                Text(
-                                  'Rs, 120 - Rs, 150',
-                                  style: TextStyle(
-                                    color: Colors.indigo,
-                                  ),
-                                ),
-                              ],
-                            )
                           ],
                         ),
                       ),
@@ -214,7 +310,7 @@ class _AcceptRideState extends State<AcceptRide> {
                                       builder: (context) => LogInScreen()));
                             },
                             child: Text(
-                              'Start Ride',
+                              ' Accept Ride ',
                               style:
                                   TextStyle(color: Colors.white, fontSize: 16),
                             ),

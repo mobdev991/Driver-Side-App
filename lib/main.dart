@@ -1,8 +1,8 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 import 'package:riorider/config.dart';
 import 'package:riorider/providers/appData.dart';
@@ -22,15 +22,23 @@ Future<void> backGroundHandler(RemoteMessage message) async {
   print(message);
 }
 
-late AndroidNotificationChannel channel;
-late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+
 
 void main() async {
+ 
   WidgetsFlutterBinding.ensureInitialized();
+  AwesomeNotifications().initialize('resource://drawable/ic_launcher', [NotificationChannel(channelKey: 'basic_channel',
+      channelName: 'New Ride Request Recivied',importance: NotificationImportance.High,
+      defaultColor: Colors.white10,
+      channelDescription: 'channelDescription',
+  vibrationPattern: highVibrationPattern,
+  playSound: true,
+      soundSource: 'resource://raw/alert'
+  )]);
   await Firebase.initializeApp();
 
   currentFirebaseUser = FirebaseAuth.instance.currentUser;
-  FirebaseMessaging.onBackgroundMessage(backGroundHandler);
+
 
   runApp(MultiProvider(
     providers: [
@@ -39,6 +47,7 @@ void main() async {
     child: MyApp(),
   ));
   print("main executted");
+
 }
 
 DatabaseReference userRef = FirebaseDatabase.instance.ref().child("users");
@@ -62,11 +71,11 @@ class MyApp extends StatelessWidget {
         title: "Login",
         theme: ThemeData(primaryColor: Colors.indigo),
         routes: <String, WidgetBuilder>{
-          Splash_Screen: (BuildContext context) => SplashScreen(),
+          splash_Screen: (BuildContext context) => SplashScreen(),
           loginoption_page: (BuildContext context) => const loginoption(),
-          Onbording_screen: (BuildContext context) => Onbording(),
+          onbordingscreen: (BuildContext context) => Onbording(),
         },
-        initialRoute: Splash_Screen,
+        initialRoute: splash_Screen,
       ),
     );
   }

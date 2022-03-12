@@ -8,17 +8,18 @@ class PrimaryButton extends StatelessWidget {
   PrimaryButton({required this.buttonText, required this.onTap});
   @override
   Widget build(BuildContext context) {
-    return Container(
-        alignment: Alignment.center,
-        height: 50,
-        width: double.infinity,
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16), color: Colors.indigo),
-        child: ElevatedButton(
+    return ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            onPrimary: Colors.white,
+            primary: Colors.indigo,
+            minimumSize: Size(200, 40),
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0), side: BorderSide(color: Colors.indigo)),
+          ),
           onPressed: () {
             onTap();
           },
           child: Text(buttonText),
-        ));
+        );
   }
 }

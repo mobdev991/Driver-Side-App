@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:math';
 
@@ -12,15 +14,25 @@ import 'package:riorider/config.dart';
 import 'package:riorider/main.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:riorider/screens/Home_page.dart';
+import 'package:riorider/screens/rider_notification_page.dart';
+
+import '../config.dart';
+import 'awesome_notifications.dart';
 
 class PushNotificationService {
   FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
   String notificationMsg = "waiting for Notification";
 
+  // StreamController<DatabaseEvent> controller = StreamController<DatabaseEvent>();
+
+  Stream<DatabaseEvent>? rideStreamSubscription;
+
+
   static final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  Future initialize() async {
+  Future initialize(context) async {
     print("initializing Notifications ...................................");
 
     final InitializationSettings initializationSettings =
@@ -47,6 +59,7 @@ class PushNotificationService {
 
       FirebaseMessaging.onMessage.listen((RemoteMessage event) {
         showNotificationOnForeground(event);
+        retrieveRideRequestInfo(getRideRequestId(event.data), context);
         notificationMsg =
             "${event.notification!.title} ${event.notification!.body} I am coming from terminated state";
       });
@@ -55,6 +68,7 @@ class PushNotificationService {
     //onmessage is we app is opened
     FirebaseMessaging.instance.getInitialMessage().then((value) {
       if (value != null) {
+        retrieveRideRequestInfo(getRideRequestId(value.data), context);
         notificationMsg =
             "${value.notification!.title} body ${value.notification!.body} I am coming from terminated state";
         print(notificationMsg);
@@ -65,6 +79,7 @@ class PushNotificationService {
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((event) {
+      retrieveRideRequestInfo(getRideRequestId(event.data), context);
       notificationMsg =
           "${event.notification!.title} body ${event.notification!.body} I am coming from background";
       print(notificationMsg);
@@ -99,10 +114,39 @@ class PushNotificationService {
     return token;
   }
 
+  Future<String?> getRideRequestID() async {
+    print("getToken Executed -----------------------------------");
+    String? rideRequestID;
+
+    // firebaseMessaging.getToken().then((value) {
+    //   print('tooken try 2');
+    //   print(value);
+    // });
+
+    await FirebaseMessaging.instance.getToken().then((value) {
+      rideRequestID = value;
+    }).onError((error, stackTrace) {
+      print("This not recived Token ::");
+      print(error);
+    });
+
+    print("This is Token ::");
+    print(rideRequestID);
+
+    driverRef.child(currentFirebaseUser!.uid).child("token").set(rideRequestID);
+
+    firebaseMessaging.subscribeToTopic("alldrivers");
+    firebaseMessaging.subscribeToTopic("allusers");
+
+    return rideRequestID;
+  }
+
+
+
   String getRideRequestId(Map<String, dynamic> message) {
     String rideRequestId = "";
     if (Platform.isAndroid) {
-      rideRequestId = message['data']['ride_request_id'];
+      rideRequestId = message['ride_request_id'];
 
       print("This is Ride Request ID Android::");
       print(rideRequestId);
@@ -111,6 +155,20 @@ class PushNotificationService {
     }
 
     return rideRequestId;
+  }
+
+  String getRideFareAmount(Map<String, dynamic> message) {
+    String rideFareAmount = "";
+    if (Platform.isAndroid) {
+      rideFareAmount = message['ride_fare'];
+
+      print("This is Ride Request ID Android::");
+      print(rideFareAmount);
+    } else {
+      rideFareAmount = message['ride_fare'];
+    }
+
+    return rideFareAmount;
   }
 
   //show the dialog when app is already opened
@@ -135,12 +193,18 @@ class PushNotificationService {
 
   // he pass it to onMessage to recive and on  all
 
+
   void retrieveRideRequestInfo(
       String rideRequestId, BuildContext context) async {
+
+    print('inside retrieve Ride Request info// ');
+    print('ride request id :: ');
+    print(rideRequestId);
     DatabaseReference reference = await FirebaseDatabase.instance
         .ref()
         .child("Ride Requests")
         .child(rideRequestId);
+    print('');
 
     DatabaseEvent event = await reference.once();
 
@@ -153,12 +217,11 @@ class PushNotificationService {
     print(dataSnapshot.value);
 
     if (data != null) {
-      assetsAudioPlayer.open(Audio("sounds/alert.mp3"),
-          autoStart: true, showNotification: true);
-      assetsAudioPlayer.play();
+
+
 
       double pickUpLocationLat =
-          double.parse(data!['pickup']['latitude'].toString());
+          double.parse(data['pickup']['latitude'].toString());
       double pickUpLocationlng =
           double.parse(data['pickup']['longitude'].toString());
       String pickUpAddress = data['pickup_address'].toString();
@@ -196,5 +259,59 @@ class PushNotificationService {
     } else {
       print("Ride Request Snapshot doesnt exists-------------------------");
     }
+  }
+
+  void showNotificationDialog(BuildContext context){
+    print('show Notification Dialog RUnning');
+    DatabaseReference nearByDriverRef = driverRef.child(currentFirebaseUser!.uid);
+print(nearByDriverRef.key);
+
+
+
+    rideStreamSubscription = nearByDriverRef.onValue;
+    rideStreamSubscription?.listen((DatabaseEvent event) {
+      var controller = StreamController<String>();
+      controller.add(statusRide);
+      controller.close();
+print(event.snapshot);
+      var data = event.snapshot.value as Map;
+      // print(data);
+      if(event.snapshot.value == null){
+        print('snapshot has no value');
+        return;
+      }else{
+        print('snap has a value');
+      }
+      if(data["newRide"] != null){
+        statusRide =data["newRide"]!.toString();
+        print('data status is not null');
+        print(statusRide);
+
+      }else{
+        print('data status is null');
+      }
+
+      if(statusRide == "accepted"){
+        print(statusRide);
+print('status ride accepted');
+}else if(statusRide == "searching"){
+        print('searching');
+      }else if(statusRide == "offline"){
+        print('offline');
+
+      }
+      else if(statusRide == "canceled"){
+
+        driverRef.child(currentFirebaseUser!.uid).child('newRide').set('searching');
+        print('offline');
+
+      }else{
+        newRideRequestNotification();
+        retrieveRideRequestInfo(statusRide,context);
+      }
+
+    });
+
+
   }
 }

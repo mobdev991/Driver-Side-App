@@ -56,7 +56,8 @@ class _LogInFormState extends State<LogInForm> {
                 'Forgot password?',
                 style: TextStyle(
                   color: Colors.indigo,
-                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
                   decoration: TextDecoration.underline,
                   decorationThickness: 1,
                 ),
@@ -65,10 +66,10 @@ class _LogInFormState extends State<LogInForm> {
           ],
         ),
         SizedBox(
-          height: 20,
+          height: 10,
         ),
         PrimaryButton(
-          buttonText: 'Login In',
+          buttonText: 'Log In',
           onTap: () {
             loginAndAuthenticateUser(context);
           },
@@ -137,8 +138,10 @@ class _LogInFormState extends State<LogInForm> {
       if (snap.exists) {
         currentFirebaseUser = firebaseUser;
 
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => HomePage()));
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => HomePage()),
+            (route) => false);
         displayToastMessage("Logged In", context);
       } else {
         _firebaseAuth.signOut();

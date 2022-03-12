@@ -44,12 +44,10 @@ class LogInScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(
-                height: 10,
-              ),
+
 
               SizedBox(
-                height: 20,
+                height: 10,
               ),
               LogInForm(),
               // PrimaryButton(
@@ -57,17 +55,17 @@ class LogInScreen extends StatelessWidget {
               //   onTap: () {},
               // ),
               SizedBox(
-                height: 20,
+                height: 10,
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
                     'Dont have an account? ',
                     style: TextStyle(
                       color: Colors.grey,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 12,
                     ),
                   ),
                   SizedBox(
@@ -87,7 +85,7 @@ class LogInScreen extends StatelessWidget {
                       style: textButton.copyWith(
                         decoration: TextDecoration.underline,
                         decorationThickness: 1,
-                        color: Colors.indigo,
+                        color: Colors.indigo,fontSize: 14
                       ),
                     ),
                   ),

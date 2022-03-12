@@ -25,7 +25,7 @@ class _MyHomePageState extends State<MyHomePage> {
           PageViewModel(
               bodyWidget: Center(
                 child: Text(
-                  "Easy on pockets",
+                  "Drive Your Favoirte Ride\nand Earn Money",
                   textAlign: TextAlign.center,
                   style:
                       TextStyle(color: Colors.indigo, fontSize: 20, shadows: [
@@ -37,27 +37,30 @@ class _MyHomePageState extends State<MyHomePage> {
                   ]),
                 ),
               ),
-              image: Image.asset("images/first.jpeg"),
-              footer: Text(
-                "Affordable daily rides",
-                style: TextStyle(
-                  color: Colors.indigo,
-                  fontSize: 20,
-                ),
-              ),
+              image: Image.asset("images/second_pic.jpeg"),
+              // footer: Text(
+              //   "Your Favorite Ride",
+              //   style: TextStyle(
+              //     color: Colors.indigo,
+              //     fontSize: 20,
+              //   ),
+              // ),
               titleWidget: Text(
-                "AFFORDABLE",
-                style: TextStyle(fontSize: 30, color: Colors.indigo),
+                "FAVORITE RIDE",
+                style: TextStyle(
+                    fontSize: 30,
+                    color: Colors.indigo,
+                    fontWeight: FontWeight.bold),
               )),
           PageViewModel(
-            titleWidget: Text("ON-Time",
+            titleWidget: Text("Low Commission Rates",
                 style: TextStyle(
-                  color: Colors.indigo,
-                  fontSize: 30,
-                )),
+                    color: Colors.indigo,
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold)),
             bodyWidget: Center(
               child: Text(
-                "Optimized routes",
+                "Our Low Commission Rates\nEnables You To\nEarn More Money ",
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.indigo, fontSize: 20, shadows: [
                   Shadow(
@@ -69,26 +72,26 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             image: Image.asset(
-              "images/second_pic.jpeg",
+              "images/comission.png",
               width: double.infinity,
             ),
-            footer: Text(
-              "Wait time of no more than 5 minutes",
-              style: TextStyle(
-                color: Colors.indigo,
-                fontSize: 20,
-              ),
-            ),
+            // footer: Text(
+            //   "Wait time of no more than 5 minutes",
+            //   style: TextStyle(
+            //     color: Colors.indigo,
+            //     fontSize: 20,
+            //   ),
+            // ),
           ),
           PageViewModel(
-              titleWidget: Text("Safe & Relax",
+              titleWidget: Text("Support Team",
                   style: TextStyle(
-                    color: Colors.indigo,
-                    fontSize: 30,
-                  )),
+                      color: Colors.indigo,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold)),
               bodyWidget: Center(
                 child: Text(
-                  "Fully Verified",
+                  "Our Support Team Is There\nTo Help You Solve\nAny Problems",
                   textAlign: TextAlign.center,
                   style:
                       TextStyle(color: Colors.indigo, fontSize: 20, shadows: [
@@ -100,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ]),
                 ),
               ),
-              image: Image.asset("images/second_pic.jpeg")),
+              image: Image.asset("images/support.png")),
         ],
         onDone: () {
           Navigator.push(

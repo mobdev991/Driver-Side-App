@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:riorider/config.dart';
 import 'package:riorider/screens/Home_page.dart';
+import 'package:riorider/screens/login.dart';
 import 'package:riorider/widgets/primary_button.dart';
 
 import '../main.dart';
@@ -29,16 +30,11 @@ class _CarInfoFormState extends State<CarInfoForm> {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        buildInputForm('Vehical Model', false, _vehicalNameTextController),
+        buildInputForm('Vehical Model   e.g Mehran', false, _vehicalNameTextController),
         // buildInputForm('Last Name', false),
-        buildInputForm('Registration Number', false, _regNoTextController),
-        buildInputForm('Vehical Color', false, _vehicalColorTextController),
+        buildInputForm('Registration Number    e.g  LXR 999', false, _regNoTextController),
+        buildInputForm('Vehical Color  e.g  Black', false, _vehicalColorTextController),
 
-        Padding(
-          padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
-          child: CheckBox('Agree to terms and conditions.'),
-        ),
-        // buildInputForm('Confirm Password', true),
         Text(
           errorSignUp == false ? "" : 'Invalid Formate : Too Short',
           style: TextStyle(
@@ -131,8 +127,10 @@ class _CarInfoFormState extends State<CarInfoForm> {
       print("vehicle registration error  ${error}");
     }).then((value) {
       print("vehivale registered");
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => HomePage()));
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => LogInScreen()),
+          (route) => false);
     });
   }
 }
